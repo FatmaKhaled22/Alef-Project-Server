@@ -19,19 +19,23 @@ const authAdminController = {
     try {
       const { email, password } = req.body;
       const admin = await adminModel.findOne({ email });
-      console.log('admin', admin)
-      isPasswordValid = admin === null ? false : await bcrypt.compare(password, admin.password)
-      console.log('valid password', isPasswordValid)
-      if (!admin || !isPasswordValid) {
-        return res.status(401).json({ message: 'Invalid username or password' });
+      console.log('admin', admin);
+
+      if(admin){
+        var isPasswordValid =  bcrypt.compareSync(password, admin.password);
+        if(isPasswordValid){
+          const token = jwt.sign(
+            { id: admin.id, adminName: admin.email } , process.env.SECRET
+          );
+          return res.status(200).json({ message: 'Login Successful', token, email: admin.email , adminId : admin.id});
+        }else{
+          return res.status(401).json({ message: 'Invalid password' });
+        }
+      }else{
+        return res.status(401).json({ message: 'Invalid email' });
       }
-      const token = jwt.sign(
-        { id: admin.id, adminName: admin.email },
-        process.env.SECRET
-      );
-      return res.status(200).json({ message: 'Login Successful', token, email: admin.email , userId : admin.id});
     } catch (err) {
-      console.log(err);
+      console.log("Error:--->",err);
     }
   },
 }

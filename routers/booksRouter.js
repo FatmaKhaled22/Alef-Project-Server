@@ -7,7 +7,12 @@ const {
   updateBook,
   deleteBook,
 } = require("../Controllers/bookControllers");
+const paginate = require("../Controllers/paginate");
 
+
+
+// Retrieve all Book using paginate
+router.get("/", paginate.findAllBook);
 
 //get all books
 router.get("/", async (req, res, next) => {
